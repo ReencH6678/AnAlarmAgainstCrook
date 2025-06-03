@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Alarm : MonoBehaviour
@@ -11,25 +12,51 @@ public class Alarm : MonoBehaviour
     private float _minValume = 0;
     private float _valumeStep = 0.1f;
 
-    private void Update()
-    {
-        float targetValume = _isOn ? _maxValume : _minValume;
-
-        _valume = Mathf.MoveTowards(_valume, targetValume, _valumeStep * Time.deltaTime);
-        _alarmNoise.volume = _valume;
-
-        if(_valume == 0)
-            _alarmNoise.Stop();
-    }
+    private Coroutine _valumeCorutine;
 
     private void OnTriggerEnter(Collider other)
     {
-        _alarmNoise.Play();
-        _isOn = true;
+        if (other.gameObject.TryGetComponent<Grifter>(out Grifter grifter))
+        {
+            _alarmNoise.Play();
+            _isOn = true;
+            RestartValumeCorutine();
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        _isOn = false;
+        if (other.gameObject.TryGetComponent<Grifter>(out Grifter grifter))
+        {
+            _isOn = false;
+            RestartValumeCorutine();
+        }
+    }
+
+    private IEnumerator ChangeValume()
+    {
+        var waitForEndOfFrame = new WaitForEndOfFrame();
+        float targetValume = _isOn ? _maxValume : _minValume;
+
+        while (Mathf.Approximately(targetValume, _valume) == false)
+        {
+            _valume = Mathf.MoveTowards(_valume, targetValume, _valumeStep * Time.deltaTime);
+            _alarmNoise.volume = _valume;
+
+            if (_valume == 0)
+                _alarmNoise.Stop();
+
+            yield return waitForEndOfFrame;
+        }
+
+        _valumeCorutine = null;
+    }
+
+    private void RestartValumeCorutine()
+    {
+        if (_valumeCorutine != null)
+            StopCoroutine(_valumeCorutine);
+
+        _valumeCorutine = StartCoroutine(ChangeValume());
     }
 }
