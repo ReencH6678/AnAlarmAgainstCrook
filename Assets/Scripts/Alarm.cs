@@ -4,59 +4,54 @@ using UnityEngine;
 public class Alarm : MonoBehaviour
 {
     [SerializeField] private AudioSource _alarmNoise;
+    [SerializeField] private AlarmTriger _alarmTriger;
 
     private bool _isOn;
 
-    private float _valume = 0;
-    private float _maxValume = 1;
-    private float _minValume = 0;
-    private float _valumeStep = 0.1f;
+    private float _volume = 0;
+    private float _maxVolume = 1;
+    private float _minVolume = 0;
+    private float _volumeStep = 0.1f;
 
-    private Coroutine _valumeCorutine;
+    private Coroutine _volumeCorutine;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnEnable()
     {
-        if (other.gameObject.TryGetComponent<Grifter>(out Grifter grifter))
-        {
-            _alarmNoise.Play();
-            _isOn = true;
-            RestartValumeCorutine();
-        }
+        _alarmTriger.Trigered += ResetVolume;
     }
 
-    private void OnTriggerExit(Collider other)
+    private void OnDisable()
     {
-        if (other.gameObject.TryGetComponent<Grifter>(out Grifter grifter))
-        {
-            _isOn = false;
-            RestartValumeCorutine();
-        }
+        _alarmTriger.Trigered -= ResetVolume;
     }
 
-    private IEnumerator ChangeValume()
+    private IEnumerator ChangeVolume()
     {
         var waitForEndOfFrame = new WaitForEndOfFrame();
-        float targetValume = _isOn ? _maxValume : _minValume;
+        float targetValume = _isOn ? _maxVolume : _minVolume;
 
-        while (Mathf.Approximately(targetValume, _valume) == false)
+        _isOn = !_isOn;
+        _alarmNoise.Play();
+
+        while (Mathf.Approximately(targetValume, _volume) == false)
         {
-            _valume = Mathf.MoveTowards(_valume, targetValume, _valumeStep * Time.deltaTime);
-            _alarmNoise.volume = _valume;
+            _volume = Mathf.MoveTowards(_volume, targetValume, _volumeStep * Time.deltaTime);
+            _alarmNoise.volume = _volume;
 
-            if (_valume == 0)
+            if (_volume == 0)
                 _alarmNoise.Stop();
 
             yield return waitForEndOfFrame;
         }
 
-        _valumeCorutine = null;
+        _volumeCorutine = null;
     }
 
-    private void RestartValumeCorutine()
+    private void ResetVolume()
     {
-        if (_valumeCorutine != null)
-            StopCoroutine(_valumeCorutine);
+        if (_volumeCorutine != null)
+            StopCoroutine(_volumeCorutine);
 
-        _valumeCorutine = StartCoroutine(ChangeValume());
+        _volumeCorutine = StartCoroutine(ChangeVolume());
     }
 }

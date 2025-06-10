@@ -627,6 +627,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2114639484}
   - component: {fileID: 2114639483}
+  - component: {fileID: 2114639485}
   - component: {fileID: 2114639482}
   - component: {fileID: 2114639481}
   m_Layer: 0
@@ -745,6 +746,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _alarmNoise: {fileID: 2114639481}
+  _alarmTriger: {fileID: 2114639485}
 --- !u!65 &2114639483
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -781,6 +783,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2114639485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2114639480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58703d6428e961744b5c9c255fd28960, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
